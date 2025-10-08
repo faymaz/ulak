@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.ulak" path="/org/gnome/shell/extensions/ulak/">
+    
+    <!-- İndirme dizini -->
+    <key name="download-directory" type="s">
+      <default>'~/Downloads'</default>
+      <summary>Download directory</summary>
+      <description>Directory where videos will be downloaded</description>
+    </key>
+    
+    <!-- Varsayılan video kalitesi -->
+    <key name="default-quality" type="s">
+      <default>'1080p'</default>
+      <summary>Default video quality</summary>
+      <description>Default quality for video downloads</description>
+    </key>
+    
+    <!-- yt-dlp yolu -->
+    <key name="yt-dlp-path" type="s">
+      <default>'yt-dlp'</default>
+      <summary>yt-dlp executable path</summary>
+      <description>Path to yt-dlp executable</description>
+    </key>
+    
+    <!-- Maksimum eşzamanlı indirme -->
+    <key name="max-concurrent-downloads" type="i">
+      <default>3</default>
+      <summary>Maximum concurrent downloads</summary>
+      <description>Maximum number of simultaneous downloads</description>
+    </key>
+    
+    <!-- Cookies dosyası -->
+    <key name="cookies-file" type="s">
+      <default>''</default>
+      <summary>Cookies file path</summary>
+      <description>Path to cookies.txt file for authenticated downloads</description>
+    </key>
+    
+    <!-- Bildirimler -->
+    <key name="show-notifications" type="b">
+      <default>true</default>
+      <summary>Show notifications</summary>
+      <description>Show notifications when downloads complete</description>
+    </key>
+    
+    <!-- İndirme geçmişi -->
+    <key name="save-history" type="b">
+      <default>true</default>
+      <summary>Save download history</summary>
+      <description>Keep a history of downloaded videos</description>
+    </key>
+    
+    <!-- İndirme formatı -->
+    <key name="output-format" type="s">
+      <default>'%(title)s-%(resolution)s.%(ext)s'</default>
+      <summary>Output filename format</summary>
+      <description>Format for output filenames</description>
+    </key>
+    
+    <!-- Otomatik alt yazı indirme -->
+    <key name="download-subtitles" type="b">
+      <default>false</default>
+      <summary>Download subtitles</summary>
+      <description>Automatically download subtitles when available</description>
+    </key>
+    
+    <!-- Alt yazı dili -->
+    <key name="subtitle-language" type="s">
+      <default>'tr,en'</default>
+      <summary>Subtitle languages</summary>
+      <description>Preferred subtitle languages (comma separated)</description>
+    </key>
+    
+    <!-- Playlist indirme -->
+    <key name="download-playlist" type="b">
+      <default>false</default>
+      <summary>Download playlists</summary>
+      <description>Download entire playlist instead of single video</description>
+    </key>
+    
+    <!-- Hız limiti -->
+    <key name="rate-limit" type="s">
+      <default>''</default>
+      <summary>Download rate limit</summary>
+      <description>Limit download speed (e.g., 50K, 4.2M)</description>
+    </key>
+    
+    <!-- Proxy -->
+    <key name="proxy-url" type="s">
+      <default>''</default>
+      <summary>Proxy URL</summary>
+      <description>HTTP/HTTPS/SOCKS proxy URL</description>
+    </key>
+    
+    <!-- Otomatik güncelleme kontrolü -->
+    <key name="check-yt-dlp-updates" type="b">
+      <default>true</default>
+      <summary>Check yt-dlp updates</summary>
+      <description>Automatically check for yt-dlp updates</description>
+    </key>
+    
+    <!-- İndirme geçmişi (JSON) -->
+    <key name="download-history" type="s">
+      <default>'[]'</default>
+      <summary>Download history data</summary>
+      <description>JSON array of download history</description>
+    </key>
+    
+  </schema>
+</schemalist>

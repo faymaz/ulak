@@ -1,0 +1,19 @@
+{
+  "description": "Ulak, another youtube and patreon video downloader",
+  "donations": {
+    "github": "https://github.com/faymaz"
+  },
+  "gettext-domain": "ulak",
+  "icon": "icons/ulak.png",
+  "name": "Ulak",
+  "settings-schema": "org.gnome.shell.extensions.ulak",
+  "shell-version": [
+    "45",
+    "46",
+    "47",
+    "48"
+  ],
+  "url": "https://github.com/faymaz/ulak",
+  "uuid": "ulak@faymaz.github.com",
+  "version": 1
+}

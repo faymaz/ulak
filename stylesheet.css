@@ -1,0 +1,300 @@
+/* stylesheet.css */
+
+/* URL giriş alanı */
+.ulak-url-entry {
+    min-width: 350px;
+    padding: 8px 12px;
+    margin: 8px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 14px;
+}
+
+.ulak-url-entry:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.ulak-url-entry:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* İndirme başlığı */
+.ulak-download-title {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* İlerleme çubuğu */
+.ulak-progress-bar {
+    height: 4px;
+    border-radius: 2px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-top: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Menü öğeleri */
+.ulak-menu-item {
+    padding: 8px 12px;
+    min-height: 28px;
+}
+
+.ulak-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Kalite seçenekleri */
+.ulak-quality-item {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.ulak-quality-item.selected {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+/* İndirme öğesi kutusu */
+.ulak-download-box {
+    padding: 8px;
+    margin: 4px 8px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.ulak-download-box:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Durum ikonları */
+.ulak-status-icon {
+    padding-right: 8px;
+}
+
+.ulak-status-icon.downloading {
+    color: #2196F3;
+}
+
+.ulak-status-icon.completed {
+    color: #4CAF50;
+}
+
+.ulak-status-icon.error {
+    color: #F44336;
+}
+
+/* Bildirim stilleri */
+.ulak-notification {
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px;
+}
+
+.ulak-notification.success {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left: 3px solid #4CAF50;
+}
+
+.ulak-notification.error {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-left: 3px solid #F44336;
+}
+
+.ulak-notification.info {
+    background-color: rgba(33, 150, 243, 0.1);
+    border-left: 3px solid #2196F3;
+}
+
+/* Butonlar */
+.ulak-button {
+    padding: 6px 16px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.ulak-button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.ulak-button:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.ulak-button.primary {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+.ulak-button.primary:hover {
+    background-color: #45a049;
+    border-color: #45a049;
+}
+
+/* Dizin gösterimi */
+.ulak-directory-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: monospace;
+    padding: 4px 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+/* Ayırıcı çizgi */
+.ulak-separator {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 8px 16px;
+}
+
+/* Hata mesajları */
+.ulak-error-message {
+    color: #F44336;
+    font-size: 12px;
+    padding: 4px 8px;
+    margin: 4px 0;
+    background-color: rgba(244, 67, 54, 0.1);
+    border-radius: 4px;
+}
+
+/* Bilgi mesajları */
+.ulak-info-message {
+    color: #2196F3;
+    font-size: 12px;
+    padding: 4px 8px;
+    margin: 4px 0;
+    background-color: rgba(33, 150, 243, 0.1);
+    border-radius: 4px;
+}
+
+/* Animasyonlar */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.ulak-downloading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.ulak-slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Kaydırma çubuğu */
+.ulak-scrollable {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.ulak-scrollable::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ulak-scrollable::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.ulak-scrollable::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.ulak-scrollable::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Tooltip */
+.ulak-tooltip {
+    position: absolute;
+    padding: 6px 10px;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+/* Başlıklar */
+.ulak-section-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px 4px 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Liste öğeleri */
+.ulak-list-item {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background-color 0.2s ease;
+}
+
+.ulak-list-item:last-child {
+    border-bottom: none;
+}
+
+.ulak-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Küçük metin */
+.ulak-small-text {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Vurgu renkleri */
+.ulak-highlight {
+    background-color: rgba(255, 235, 59, 0.1);
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+/* Responsive ayarlar */
+@media (max-width: 768px) {
+    .ulak-url-entry {
+        min-width: 250px;
+    }
+    
+    .ulak-download-box {
+        padding: 6px;
+        margin: 2px 4px;
+    }
+}
