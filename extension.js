@@ -215,39 +215,43 @@ class UlakIndicator extends PanelMenu.Button {
     
     _buildDownloadCommand(url) {
         let ytDlpPath = this._ytDlpPath || 'yt-dlp';
+        
+        // Build output path - ensure directory exists
+        let outputTemplate = '%(title)s.%(ext)s';
         let outputPath = GLib.build_filenamev([
             this._downloadDir,
-            '%(title)s-%(resolution)s.%(ext)s'
+            outputTemplate
         ]);
         
-        let command = [
-            ytDlpPath,
-            '--no-warnings',
-            '--no-playlist',
-            '--output', outputPath
-        ];
+        let command = ytDlpPath;
+        
+        // Add basic options
+        command += ' --no-warnings';
+        command += ' --no-playlist';
+        command += ' --output "' + outputPath + '"';
         
         // Quality settings
         if (this._selectedQuality === 'audio') {
-            command.push('-x');
-            command.push('--audio-format', 'mp3');
-            command.push('--audio-quality', '0');
+            command += ' -x';
+            command += ' --audio-format mp3';
+            command += ' --audio-quality 0';
         } else {
-            command.push('-f');
-            let formatString = `bestvideo[height<=${this._selectedQuality.replace('p', '')}]+bestaudio/best[height<=${this._selectedQuality.replace('p', '')}]`;
-            command.push(formatString);
-            command.push('--merge-output-format', 'mp4');
+            // Use simpler format selection that works better
+            let height = this._selectedQuality.replace('p', '');
+            command += ' -f "bestvideo[height<=?' + height + ']+bestaudio/best[height<=?' + height + ']/best"';
+            command += ' --merge-output-format mp4';
         }
         
         // Cookies support for Patreon
         let cookiesFile = this._settings.get_string('cookies-file');
         if (cookiesFile && url.includes('patreon.com')) {
-            command.push('--cookies', cookiesFile);
+            command += ' --cookies "' + cookiesFile + '"';
         }
         
-        command.push(url);
+        // Add URL at the end
+        command += ' "' + url + '"';
         
-        return command.join(' ');
+        return command;
     }
     
     _executeDownload(command, url) {
@@ -276,18 +280,24 @@ class UlakIndicator extends PanelMenu.Button {
         
         this._downloadsSection.addMenuItem(downloadItem, 0);
         
+        // Debug log
+        console.log('Ulak: Executing command: ' + command);
+        
         // Start download in background
         try {
-            let proc = Gio.Subprocess.new(
-                ['bash', '-c', command],
-                Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+            // Use simpler spawn method
+            let [success, pid] = GLib.spawn_async(
+                null, // working directory
+                ['/bin/bash', '-c', command], // command array
+                null, // environment
+                GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+                null // child setup
             );
             
-            proc.communicate_utf8_async(null, null, (proc, res) => {
-                try {
-                    let [success, stdout, stderr] = proc.communicate_utf8_finish(res);
-                    
-                    if (proc.get_successful()) {
+            if (success) {
+                // Watch for process completion
+                GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, (pid, status) => {
+                    if (status === 0) {
                         this._showSuccess('Download completed!');
                         titleLabel.set_text('✅ Completed: ' + this._shortenUrl(url));
                         
@@ -297,30 +307,30 @@ class UlakIndicator extends PanelMenu.Button {
                             return GLib.SOURCE_REMOVE;
                         });
                     } else {
-                        this._showError('Download failed: ' + stderr);
+                        this._showError('Download failed with status: ' + status);
                         downloadItem.destroy();
                     }
-                } catch (e) {
-                    this._showError('Download error: ' + e.message);
-                    downloadItem.destroy();
-                }
-            });
-            
-            // Progress bar animation (simulated)
-            let progress = 0;
-            let progressTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
-                progress += Math.random() * 2;
-                if (progress > 100) progress = 100;
+                });
                 
-                progressBar.set_style(`background-color: #4CAF50; width: ${progress}%;`);
-                
-                if (progress >= 100) {
-                    return GLib.SOURCE_REMOVE;
-                }
-                return GLib.SOURCE_CONTINUE;
-            });
-            
+                // Progress bar animation (simulated)
+                let progress = 0;
+                let progressTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                    progress += Math.random() * 3;
+                    if (progress > 100) progress = 100;
+                    
+                    progressBar.set_style(`background-color: #4CAF50; width: ${progress}%;`);
+                    
+                    if (progress >= 100) {
+                        return GLib.SOURCE_REMOVE;
+                    }
+                    return GLib.SOURCE_CONTINUE;
+                });
+            } else {
+                this._showError('Failed to start download process');
+                downloadItem.destroy();
+            }
         } catch (e) {
+            console.error('Ulak download error: ' + e.message);
             this._showError('Failed to start download: ' + e.message);
             downloadItem.destroy();
         }
