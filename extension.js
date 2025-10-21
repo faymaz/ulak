@@ -19,10 +19,8 @@ class UlakIndicator extends PanelMenu.Button {
         this._downloads = new Map();
         this._downloadHistory = [];
         
-        // Load history from settings
         this._loadHistory();
         
-        // Panel icon
         let iconPath = extension.path + '/icons/ulak.png';
         let iconFile = Gio.File.new_for_path(iconPath);
         
@@ -45,7 +43,6 @@ class UlakIndicator extends PanelMenu.Button {
     }
     
     _buildMenu() {
-        // URL entry field
         this._urlEntry = new St.Entry({
             style_class: 'ulak-url-entry',
             hint_text: 'Paste video URL here...',
@@ -60,7 +57,6 @@ class UlakIndicator extends PanelMenu.Button {
         entryItem.add_child(this._urlEntry);
         this.menu.addMenuItem(entryItem);
         
-        // Quality selection
         this._qualitySection = new PopupMenu.PopupMenuSection();
         this.menu.addMenuItem(this._qualitySection);
         
@@ -88,14 +84,12 @@ class UlakIndicator extends PanelMenu.Button {
         
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         
-        // Download button
         this._downloadButton = new PopupMenu.PopupMenuItem('📥 Download');
         this._downloadButton.connect('activate', () => {
             this._startDownload();
         });
         this.menu.addMenuItem(this._downloadButton);
         
-        // Download directory
         let downloadDir = this._settings.get_string('download-directory');
         this._dirLabel = new PopupMenu.PopupMenuItem(
             '📁 ' + this._shortenPath(downloadDir),
@@ -111,7 +105,6 @@ class UlakIndicator extends PanelMenu.Button {
         
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         
-        // Active downloads section
         this._downloadsSection = new PopupMenu.PopupMenuSection();
         let downloadsHeader = new PopupMenu.PopupMenuItem('Active Downloads', {
             reactive: false,
@@ -122,7 +115,6 @@ class UlakIndicator extends PanelMenu.Button {
         
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         
-        // Download history section
         this._historySection = new PopupMenu.PopupMenuSection();
         let historyHeader = new PopupMenu.PopupMenuItem('Recent Downloads', {
             reactive: false,
@@ -131,7 +123,6 @@ class UlakIndicator extends PanelMenu.Button {
         this.menu.addMenuItem(historyHeader);
         this.menu.addMenuItem(this._historySection);
         
-        // Clear history button
         let clearHistoryBtn = new PopupMenu.PopupMenuItem('🗑️ Clear History');
         clearHistoryBtn.connect('activate', () => {
             this._clearHistory();
@@ -140,14 +131,12 @@ class UlakIndicator extends PanelMenu.Button {
         
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         
-        // Settings
         let settingsItem = new PopupMenu.PopupMenuItem('⚙️ Settings');
         settingsItem.connect('activate', () => {
             this._extension.openPreferences();
         });
         this.menu.addMenuItem(settingsItem);
         
-        // Update history display
         this._updateHistoryDisplay();
     }
     
@@ -262,7 +251,6 @@ class UlakIndicator extends PanelMenu.Button {
     _executeDownload(command, url) {
         let downloadId = Date.now().toString();
         
-        // Create download UI
         let downloadItem = new PopupMenu.PopupBaseMenuItem({
             reactive: true,
             can_focus: false,
@@ -274,7 +262,6 @@ class UlakIndicator extends PanelMenu.Button {
             style: 'padding: 8px; spacing: 6px;',
         });
         
-        // Title and source
         let sourceIcon = url.includes('youtube') ? '📺' : '🎬';
         let sourceName = url.includes('youtube') ? 'YouTube' : 'Patreon';
         
@@ -288,21 +275,18 @@ class UlakIndicator extends PanelMenu.Button {
             style: 'font-size: 10px; color: rgba(255,255,255,0.5); font-family: monospace;',
         });
         
-        // Progress container
         let progressBox = new St.BoxLayout({
             vertical: false,
             x_expand: true,
             style: 'spacing: 8px; margin-top: 4px;',
         });
         
-        // Progress bar wrapper (for proper left alignment)
         let progressWrapper = new St.BoxLayout({
             vertical: false,
             x_expand: true,
             style: 'background-color: rgba(255,255,255,0.15); height: 24px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);',
         });
         
-        // Progress bar fill
         let progressFill = new St.Widget({
             style: 'background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%); height: 22px; border-radius: 12px; width: 0px;',
             y_align: Clutter.ActorAlign.CENTER,
@@ -310,22 +294,14 @@ class UlakIndicator extends PanelMenu.Button {
         
         progressWrapper.add_child(progressFill);
         
-        // Progress text
         let progressText = new St.Label({
             text: '0%',
             style: 'font-size: 12px; font-weight: 600; min-width: 50px; text-align: right;',
         });
         
-        progressWrapper.add_child(progressFill);
         progressBox.add_child(progressWrapper);
         progressBox.add_child(progressText);
         
-        box.add_child(titleLabel);
-        box.add_child(urlLabel);
-        box.add_child(progressBox);
-        box.add_child(statsLabel);
-        
-        // Speed and ETA
         let statsLabel = new St.Label({
             text: 'Preparing download...',
             style: 'font-size: 11px; color: rgba(255,255,255,0.6);',
@@ -339,7 +315,6 @@ class UlakIndicator extends PanelMenu.Button {
         downloadItem.add_child(box);
         this._downloadsSection.addMenuItem(downloadItem, 0);
         
-        // Store download info
         this._downloads.set(downloadId, {
             item: downloadItem,
             url: url,
@@ -354,7 +329,6 @@ class UlakIndicator extends PanelMenu.Button {
         
         console.log('Ulak: Executing: ' + command);
         
-        // Execute download with output monitoring
         try {
             let [, , , stderrFd] = GLib.spawn_async_with_pipes(
                 null,
@@ -364,7 +338,6 @@ class UlakIndicator extends PanelMenu.Button {
                 null
             );
             
-            // Monitor stderr for progress
             let stderrStream = new Gio.DataInputStream({
                 base_stream: new Gio.UnixInputStream({ fd: stderrFd, close_fd: true }),
             });
@@ -385,11 +358,8 @@ class UlakIndicator extends PanelMenu.Button {
                 
                 if (line !== null) {
                     this._parseProgressLine(line, downloadId);
-                    
-                    // Continue reading
                     this._monitorDownloadProgress(stream, downloadId, url);
                 } else {
-                    // Download finished
                     this._onDownloadComplete(downloadId, url);
                 }
             } catch (e) {
@@ -403,9 +373,6 @@ class UlakIndicator extends PanelMenu.Button {
         let download = this._downloads.get(downloadId);
         if (!download) return;
         
-        // Parse yt-dlp progress output
-        // Format: [download]   X.X% of Y.YMiB at Z.ZMiB/s ETA MM:SS
-        
         let percentMatch = line.match(/(\d+\.?\d*)%/);
         let speedMatch = line.match(/at\s+([\d.]+\s*[KMG]iB\/s)/i);
         let etaMatch = line.match(/ETA\s+([\d:]+)/);
@@ -414,8 +381,7 @@ class UlakIndicator extends PanelMenu.Button {
         if (percentMatch) {
             let percent = parseFloat(percentMatch[1]);
             
-            // Get the actual width of the background container
-            let bgWidth = 300; // Default fallback
+            let bgWidth = 300;
             if (download.progressWrapper) {
                 let allocation = download.progressWrapper.get_allocation_box();
                 if (allocation) {
@@ -423,10 +389,8 @@ class UlakIndicator extends PanelMenu.Button {
                 }
             }
             
-            // Calculate pixel width based on percentage
             let width = Math.max(2, Math.floor(bgWidth * percent / 100));
             
-            // Update progress bar - simple width property
             download.progressFill.set_style(
                 `width: ${width}px; 
                  height: 22px; 
@@ -446,12 +410,10 @@ class UlakIndicator extends PanelMenu.Button {
             download.statsLabel.set_text(statsText.join(' • '));
         }
         
-        // Check for filename in output - extract REAL filename
         let destMatch = line.match(/\[download\] Destination:\s*(.+)/);
         if (destMatch) {
             let fullPath = destMatch[1].trim();
             download.filename = GLib.path_get_basename(fullPath);
-            // Update title with actual filename
             let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
             let shortName = this._shortenFilename(download.filename);
             download.titleLabel.set_text(sourceIcon + ' ' + shortName);
@@ -466,7 +428,6 @@ class UlakIndicator extends PanelMenu.Button {
             download.titleLabel.set_text(sourceIcon + ' ' + shortName);
         }
         
-        // Also catch when download is already downloaded
         let alreadyMatch = line.match(/\[download\] (.+) has already been downloaded/);
         if (alreadyMatch) {
             download.filename = GLib.path_get_basename(alreadyMatch[1].trim());
@@ -480,17 +441,13 @@ class UlakIndicator extends PanelMenu.Button {
         let download = this._downloads.get(downloadId);
         if (!download) return;
         
-        // Try to get the actual filename from the download directory
         let filename = download.filename || 'Unknown';
         
-        // If we have the filename, try to find the actual file
         if (filename && filename !== 'Unknown') {
             let filepath = GLib.build_filenamev([this._downloadDir, filename]);
             let file = Gio.File.new_for_path(filepath);
             
-            // Check if file exists, if not try to find similar files
             if (!file.query_exists(null)) {
-                // Try to find the file in download directory
                 try {
                     let dir = Gio.File.new_for_path(this._downloadDir);
                     let enumerator = dir.enumerate_children('standard::name', Gio.FileQueryInfoFlags.NONE, null);
@@ -498,7 +455,6 @@ class UlakIndicator extends PanelMenu.Button {
                     
                     while ((fileInfo = enumerator.next_file(null)) !== null) {
                         let name = fileInfo.get_name();
-                        // Find the most recent file that matches part of our expected name
                         if (download.url.includes('youtube') && name.includes('.mp4')) {
                             filename = name;
                             filepath = GLib.build_filenamev([this._downloadDir, filename]);
@@ -518,10 +474,18 @@ class UlakIndicator extends PanelMenu.Button {
         
         let filepath = GLib.build_filenamev([this._downloadDir, filename]);
         
-        // Update UI
+        // Get full container width for 100%
+        let fullWidth = 300;
+        if (download.progressWrapper) {
+            let allocation = download.progressWrapper.get_allocation_box();
+            if (allocation) {
+                fullWidth = Math.floor(allocation.x2 - allocation.x1);
+            }
+        }
+        
         download.titleLabel.set_text('✅ ' + this._shortenFilename(filename));
         download.progressFill.set_style(
-            `width: 300px; 
+            `width: ${fullWidth}px; 
              height: 22px; 
              background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
              border-radius: 12px;
@@ -530,7 +494,6 @@ class UlakIndicator extends PanelMenu.Button {
         download.progressText.set_text('100%');
         download.statsLabel.set_text('✓ Download complete');
         
-        // Add to history
         this._addToHistory({
             url: url,
             filename: filename,
@@ -542,7 +505,6 @@ class UlakIndicator extends PanelMenu.Button {
         
         this._showSuccess('✓ Downloaded: ' + this._shortenFilename(filename));
         
-        // Remove from active downloads after 5 seconds
         GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 5, () => {
             this._removeDownload(downloadId, true);
             return GLib.SOURCE_REMOVE;
@@ -553,7 +515,6 @@ class UlakIndicator extends PanelMenu.Button {
         let download = this._downloads.get(downloadId);
         if (download) {
             try {
-                // Safely remove the menu item
                 if (download.item && !download.item.is_finalized()) {
                     this._downloadsSection.box.remove_child(download.item);
                     download.item.destroy();
@@ -579,7 +540,6 @@ class UlakIndicator extends PanelMenu.Button {
     
     _saveHistory() {
         try {
-            // Keep only last 20 items
             if (this._downloadHistory.length > 20) {
                 this._downloadHistory = this._downloadHistory.slice(0, 20);
             }
@@ -605,7 +565,6 @@ class UlakIndicator extends PanelMenu.Button {
     }
     
     _updateHistoryDisplay() {
-        // Clear existing items
         this._historySection.removeAll();
         
         if (this._downloadHistory.length === 0) {
@@ -617,7 +576,6 @@ class UlakIndicator extends PanelMenu.Button {
             return;
         }
         
-        // Show last 5 items
         let itemsToShow = this._downloadHistory.slice(0, 5);
         
         for (let historyItem of itemsToShow) {
@@ -669,15 +627,12 @@ class UlakIndicator extends PanelMenu.Button {
             
             menuItem.add_child(box);
             
-            // Click to open file location
             menuItem.connect('activate', () => {
                 try {
-                    // Try to open the file directly
                     let file = Gio.File.new_for_path(historyItem.filepath);
                     if (file.query_exists(null)) {
                         GLib.spawn_command_line_async(`xdg-open "${historyItem.filepath}"`);
                     } else {
-                        // If file doesn't exist, open the download folder
                         GLib.spawn_command_line_async(`xdg-open "${this._downloadDir}"`);
                     }
                 } catch (e) {
@@ -690,7 +645,6 @@ class UlakIndicator extends PanelMenu.Button {
     }
     
     _extractTitle(filename) {
-        // Remove extension and shorten
         let title = filename.replace(/\.[^/.]+$/, '');
         if (title.length > 40) {
             return title.substring(0, 37) + '...';
@@ -730,7 +684,6 @@ class UlakIndicator extends PanelMenu.Button {
         if (!filename) return 'Unknown';
         
         if (filename.length > 35) {
-            // Keep extension visible
             let lastDot = filename.lastIndexOf('.');
             if (lastDot > 0) {
                 let ext = filename.substring(lastDot);
