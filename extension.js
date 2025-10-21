@@ -421,15 +421,30 @@ class UlakIndicator extends PanelMenu.Button {
             download.statsLabel.set_text(statsText.join(' • '));
         }
         
-        // Check for filename in output
-        let destMatch = line.match(/Destination:\s*(.+)/);
+        // Check for filename in output - extract REAL filename
+        let destMatch = line.match(/\[download\] Destination:\s*(.+)/);
         if (destMatch) {
-            download.filename = destMatch[1].trim();
+            let fullPath = destMatch[1].trim();
+            download.filename = GLib.path_get_basename(fullPath);
+            // Update title with actual filename
+            let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
+            download.titleLabel.set_text(sourceIcon + ' ' + this._shortenFilename(download.filename));
         }
         
-        let mergeMatch = line.match(/Merging formats into "(.+)"/);
+        let mergeMatch = line.match(/\[Merger\] Merging formats into "(.+)"/);
         if (mergeMatch) {
-            download.filename = mergeMatch[1].trim();
+            let fullPath = mergeMatch[1].trim();
+            download.filename = GLib.path_get_basename(fullPath);
+            let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
+            download.titleLabel.set_text(sourceIcon + ' ' + this._shortenFilename(download.filename));
+        }
+        
+        // Also catch when download is already downloaded
+        let alreadyMatch = line.match(/\[download\] (.+) has already been downloaded/);
+        if (alreadyMatch) {
+            download.filename = GLib.path_get_basename(alreadyMatch[1].trim());
+            let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
+            download.titleLabel.set_text(sourceIcon + ' ' + this._shortenFilename(download.filename));
         }
     }
     
