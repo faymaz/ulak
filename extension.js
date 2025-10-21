@@ -292,18 +292,18 @@ class UlakIndicator extends PanelMenu.Button {
         let progressBox = new St.BoxLayout({
             vertical: false,
             x_expand: true,
-            style: 'spacing: 8px;',
+            style: 'spacing: 8px; margin-top: 4px;',
         });
         
         // Progress bar background
         let progressBg = new St.Bin({
-            style: 'background-color: rgba(255,255,255,0.1); height: 20px; border-radius: 10px;',
+            style_class: 'ulak-progress-background',
             x_expand: true,
         });
         
         // Progress bar fill
         let progressFill = new St.Widget({
-            style: 'background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%); height: 20px; border-radius: 10px;',
+            style_class: 'ulak-progress-fill',
             x_align: Clutter.ActorAlign.START,
             y_align: Clutter.ActorAlign.FILL,
         });
