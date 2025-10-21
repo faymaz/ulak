@@ -428,7 +428,8 @@ class UlakIndicator extends PanelMenu.Button {
             download.filename = GLib.path_get_basename(fullPath);
             // Update title with actual filename
             let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
-            download.titleLabel.set_text(sourceIcon + ' ' + this._shortenFilename(download.filename));
+            let shortName = this._shortenFilename(download.filename);
+            download.titleLabel.set_text(sourceIcon + ' ' + shortName);
         }
         
         let mergeMatch = line.match(/\[Merger\] Merging formats into "(.+)"/);
@@ -436,7 +437,8 @@ class UlakIndicator extends PanelMenu.Button {
             let fullPath = mergeMatch[1].trim();
             download.filename = GLib.path_get_basename(fullPath);
             let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
-            download.titleLabel.set_text(sourceIcon + ' ' + this._shortenFilename(download.filename));
+            let shortName = this._shortenFilename(download.filename);
+            download.titleLabel.set_text(sourceIcon + ' ' + shortName);
         }
         
         // Also catch when download is already downloaded
@@ -444,7 +446,8 @@ class UlakIndicator extends PanelMenu.Button {
         if (alreadyMatch) {
             download.filename = GLib.path_get_basename(alreadyMatch[1].trim());
             let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
-            download.titleLabel.set_text(sourceIcon + ' ' + this._shortenFilename(download.filename));
+            let shortName = this._shortenFilename(download.filename);
+            download.titleLabel.set_text(sourceIcon + ' ' + shortName);
         }
     }
     
@@ -642,6 +645,18 @@ class UlakIndicator extends PanelMenu.Button {
             return url.slice(0, 47) + '...';
         }
         return url;
+    }
+    
+    _shortenFilename(filename) {
+        if (filename.length > 35) {
+            // Keep extension visible
+            let ext = filename.split('.').pop();
+            let name = filename.substring(0, filename.lastIndexOf('.'));
+            if (name.length > 30) {
+                return name.substring(0, 27) + '...' + ext;
+            }
+        }
+        return filename;
     }
     
     _showError(message) {
