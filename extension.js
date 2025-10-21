@@ -316,8 +316,14 @@ class UlakIndicator extends PanelMenu.Button {
             style: 'font-size: 12px; font-weight: 600; min-width: 50px; text-align: right;',
         });
         
-        progressBox.add_child(progressBg);
+        progressWrapper.add_child(progressFill);
+        progressBox.add_child(progressWrapper);
         progressBox.add_child(progressText);
+        
+        box.add_child(titleLabel);
+        box.add_child(urlLabel);
+        box.add_child(progressBox);
+        box.add_child(statsLabel);
         
         // Speed and ETA
         let statsLabel = new St.Label({
@@ -339,7 +345,7 @@ class UlakIndicator extends PanelMenu.Button {
             url: url,
             titleLabel: titleLabel,
             progressFill: progressFill,
-            progressBg: progressBg,
+            progressWrapper: progressWrapper,
             progressText: progressText,
             statsLabel: statsLabel,
             startTime: Date.now(),
@@ -410,8 +416,8 @@ class UlakIndicator extends PanelMenu.Button {
             
             // Get the actual width of the background container
             let bgWidth = 300; // Default fallback
-            if (download.progressBg) {
-                let allocation = download.progressBg.get_allocation_box();
+            if (download.progressWrapper) {
+                let allocation = download.progressWrapper.get_allocation_box();
                 if (allocation) {
                     bgWidth = allocation.x2 - allocation.x1;
                 }
@@ -420,10 +426,10 @@ class UlakIndicator extends PanelMenu.Button {
             // Calculate pixel width based on percentage
             let width = Math.max(2, Math.floor(bgWidth * percent / 100));
             
-            // Update progress bar with inline style to override
+            // Update progress bar - simple width property
             download.progressFill.set_style(
                 `width: ${width}px; 
-                 height: 24px; 
+                 height: 22px; 
                  background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
                  border-radius: 12px;
                  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);`
@@ -516,7 +522,7 @@ class UlakIndicator extends PanelMenu.Button {
         download.titleLabel.set_text('✅ ' + this._shortenFilename(filename));
         download.progressFill.set_style(
             `width: 300px; 
-             height: 24px; 
+             height: 22px; 
              background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
              border-radius: 12px;
              box-shadow: 0 2px 8px rgba(76, 175, 80, 0.6);`
