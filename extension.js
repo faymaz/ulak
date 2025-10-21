@@ -1,4 +1,3 @@
-// extension.js - Enhanced with download history and better progress tracking
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 import Gio from 'gi://Gio';
@@ -474,7 +473,7 @@ class UlakIndicator extends PanelMenu.Button {
         
         let filepath = GLib.build_filenamev([this._downloadDir, filename]);
         
-        // Get full container width for 100%
+      
         let fullWidth = 300;
         if (download.progressWrapper) {
             let allocation = download.progressWrapper.get_allocation_box();

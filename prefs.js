@@ -1,4 +1,3 @@
-// prefs.js
 import Gtk from 'gi://Gtk';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
@@ -9,21 +8,21 @@ export default class UlakPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         
-        // Main page
+      
         const page = new Adw.PreferencesPage({
             title: 'Ulak Settings',
             icon_name: 'folder-download-symbolic',
         });
         window.add(page);
         
-        // General Settings Group
+      
         const generalGroup = new Adw.PreferencesGroup({
             title: 'General Settings',
             description: 'Configure video download settings',
         });
         page.add(generalGroup);
         
-        // Download directory
+      
         const downloadDirRow = new Adw.ActionRow({
             title: 'Download Directory',
             subtitle: settings.get_string('download-directory'),
@@ -63,7 +62,7 @@ export default class UlakPreferences extends ExtensionPreferences {
         downloadDirRow.add_suffix(dirButton);
         generalGroup.add(downloadDirRow);
         
-        // Default video quality
+      
         const qualityRow = new Adw.ComboRow({
             title: 'Default Video Quality',
             subtitle: 'Default quality for downloads',
@@ -74,7 +73,7 @@ export default class UlakPreferences extends ExtensionPreferences {
         qualityOptions.forEach(q => qualityModel.append(q));
         qualityRow.set_model(qualityModel);
         
-        // Set current value
+      
         const currentQuality = settings.get_string('default-quality');
         const currentIndex = qualityOptions.indexOf(currentQuality);
         if (currentIndex >= 0) {
@@ -90,14 +89,14 @@ export default class UlakPreferences extends ExtensionPreferences {
         
         generalGroup.add(qualityRow);
         
-        // Advanced Settings Group
+      
         const advancedGroup = new Adw.PreferencesGroup({
             title: 'Advanced Settings',
             description: 'yt-dlp and other advanced settings',
         });
         page.add(advancedGroup);
         
-        // yt-dlp path
+      
         const ytDlpRow = new Adw.EntryRow({
             title: 'yt-dlp Path',
             text: settings.get_string('yt-dlp-path') || 'yt-dlp',
@@ -109,7 +108,7 @@ export default class UlakPreferences extends ExtensionPreferences {
         
         advancedGroup.add(ytDlpRow);
         
-        // Concurrent downloads
+      
         const concurrentRow = new Adw.SpinRow({
             title: 'Concurrent Downloads',
             subtitle: 'Number of simultaneous downloads',
@@ -128,7 +127,7 @@ export default class UlakPreferences extends ExtensionPreferences {
         
         advancedGroup.add(concurrentRow);
         
-        // Cookies file (for Patreon)
+      
         const cookiesRow = new Adw.ActionRow({
             title: 'Cookies File (for Patreon)',
             subtitle: settings.get_string('cookies-file') || 'Not selected',
@@ -147,7 +146,7 @@ export default class UlakPreferences extends ExtensionPreferences {
                 modal: true,
             });
             
-            // Add filter
+          
             const filter = new Gtk.FileFilter();
             filter.set_name('Cookies files');
             filter.add_pattern('*.txt');
@@ -186,7 +185,7 @@ export default class UlakPreferences extends ExtensionPreferences {
         cookiesRow.add_suffix(clearCookiesButton);
         advancedGroup.add(cookiesRow);
         
-        // Notifications
+      
         const notificationSwitch = new Adw.SwitchRow({
             title: 'Download Notifications',
             subtitle: 'Show notification when download completes',
@@ -199,7 +198,7 @@ export default class UlakPreferences extends ExtensionPreferences {
         
         advancedGroup.add(notificationSwitch);
         
-        // Download history
+      
         const historySwitch = new Adw.SwitchRow({
             title: 'Save Download History',
             subtitle: 'Keep history of downloaded videos',
@@ -212,7 +211,7 @@ export default class UlakPreferences extends ExtensionPreferences {
         
         advancedGroup.add(historySwitch);
         
-        // About Group
+      
         const aboutGroup = new Adw.PreferencesGroup({
             title: 'About',
         });
@@ -232,7 +231,7 @@ export default class UlakPreferences extends ExtensionPreferences {
         aboutRow.add_suffix(githubButton);
         aboutGroup.add(aboutRow);
         
-        // Help
+      
         const helpRow = new Adw.ActionRow({
             title: 'Installation Help',
             subtitle: 'yt-dlp installation and usage',
