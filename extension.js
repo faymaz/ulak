@@ -285,7 +285,7 @@ class UlakIndicator extends PanelMenu.Button {
         
         let urlLabel = new St.Label({
             text: this._shortenUrl(url),
-            style: 'font-size: 11px; color: rgba(255,255,255,0.6);',
+            style: 'font-size: 10px; color: rgba(255,255,255,0.5); font-family: monospace;',
         });
         
         // Progress container
@@ -313,7 +313,7 @@ class UlakIndicator extends PanelMenu.Button {
         // Progress text
         let progressText = new St.Label({
             text: '0%',
-            style: 'font-size: 11px; min-width: 40px;',
+            style: 'font-size: 12px; font-weight: 600; min-width: 50px; text-align: right;',
         });
         
         progressBox.add_child(progressBg);
@@ -321,8 +321,8 @@ class UlakIndicator extends PanelMenu.Button {
         
         // Speed and ETA
         let statsLabel = new St.Label({
-            text: 'Starting download...',
-            style: 'font-size: 10px; color: rgba(255,255,255,0.5);',
+            text: 'Preparing download...',
+            style: 'font-size: 11px; color: rgba(255,255,255,0.6);',
         });
         
         box.add_child(titleLabel);
@@ -418,11 +418,15 @@ class UlakIndicator extends PanelMenu.Button {
             }
             
             // Calculate pixel width based on percentage
-            let width = Math.max(1, Math.floor(bgWidth * percent / 100));
+            let width = Math.max(2, Math.floor(bgWidth * percent / 100));
             
+            // Update progress bar with inline style to override
             download.progressFill.set_style(
-                `background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%); 
-                 height: 20px; border-radius: 10px; width: ${width}px;`
+                `width: ${width}px; 
+                 height: 24px; 
+                 background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
+                 border-radius: 12px;
+                 box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);`
             );
             download.progressText.set_text(percent.toFixed(1) + '%');
         }
@@ -470,16 +474,55 @@ class UlakIndicator extends PanelMenu.Button {
         let download = this._downloads.get(downloadId);
         if (!download) return;
         
+        // Try to get the actual filename from the download directory
         let filename = download.filename || 'Unknown';
+        
+        // If we have the filename, try to find the actual file
+        if (filename && filename !== 'Unknown') {
+            let filepath = GLib.build_filenamev([this._downloadDir, filename]);
+            let file = Gio.File.new_for_path(filepath);
+            
+            // Check if file exists, if not try to find similar files
+            if (!file.query_exists(null)) {
+                // Try to find the file in download directory
+                try {
+                    let dir = Gio.File.new_for_path(this._downloadDir);
+                    let enumerator = dir.enumerate_children('standard::name', Gio.FileQueryInfoFlags.NONE, null);
+                    let fileInfo;
+                    
+                    while ((fileInfo = enumerator.next_file(null)) !== null) {
+                        let name = fileInfo.get_name();
+                        // Find the most recent file that matches part of our expected name
+                        if (download.url.includes('youtube') && name.includes('.mp4')) {
+                            filename = name;
+                            filepath = GLib.build_filenamev([this._downloadDir, filename]);
+                            break;
+                        } else if (download.url.includes('patreon') && (name.includes('.mp4') || name.includes('.webm'))) {
+                            filename = name;
+                            filepath = GLib.build_filenamev([this._downloadDir, filename]);
+                            break;
+                        }
+                    }
+                    enumerator.close(null);
+                } catch (e) {
+                    console.log('Ulak: Could not enumerate download directory: ' + e.message);
+                }
+            }
+        }
+        
         let filepath = GLib.build_filenamev([this._downloadDir, filename]);
         
         // Update UI
-        download.titleLabel.set_text('✅ Completed!');
+        download.titleLabel.set_text('✅ ' + this._shortenFilename(filename));
         download.progressFill.set_style(
-            'background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%); height: 20px; border-radius: 10px; width: 300px;'
+            `width: 300px; 
+             height: 24px; 
+             background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
+             border-radius: 12px;
+             box-shadow: 0 2px 8px rgba(76, 175, 80, 0.6);`
         );
         download.progressText.set_text('100%');
-        download.statsLabel.set_text('Download complete');
+        download.statsLabel.set_text('✓ Download complete');
         
         // Add to history
         this._addToHistory({
@@ -491,10 +534,10 @@ class UlakIndicator extends PanelMenu.Button {
             quality: this._selectedQuality,
         });
         
-        this._showSuccess('Download completed: ' + filename);
+        this._showSuccess('✓ Downloaded: ' + this._shortenFilename(filename));
         
-        // Remove from active downloads after 3 seconds
-        GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 3, () => {
+        // Remove from active downloads after 5 seconds
+        GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 5, () => {
             this._removeDownload(downloadId, true);
             return GLib.SOURCE_REMOVE;
         });
@@ -623,9 +666,16 @@ class UlakIndicator extends PanelMenu.Button {
             // Click to open file location
             menuItem.connect('activate', () => {
                 try {
-                    GLib.spawn_command_line_async(`xdg-open "${this._downloadDir}"`);
+                    // Try to open the file directly
+                    let file = Gio.File.new_for_path(historyItem.filepath);
+                    if (file.query_exists(null)) {
+                        GLib.spawn_command_line_async(`xdg-open "${historyItem.filepath}"`);
+                    } else {
+                        // If file doesn't exist, open the download folder
+                        GLib.spawn_command_line_async(`xdg-open "${this._downloadDir}"`);
+                    }
                 } catch (e) {
-                    this._showError('Failed to open folder');
+                    this._showError('Failed to open file');
                 }
             });
             
