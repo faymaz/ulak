@@ -1,3 +1,5 @@
+![Visitor Count](https://visitor-badge.laobi.icu/badge?page_id=faymaz.ulak)
+
 # Ulak - GNOME Shell Video Downloader
 
 A GNOME Shell extension that allows you to easily download videos from YouTube and Patreon.
@@ -89,12 +91,7 @@ gnome-extensions enable ulak@faymaz.github.com
    - Select video quality
    - Click "Download"
 
-2. **For Patreon Videos:**
-   - Export cookies.txt from your browser (using cookies.txt extension)
-   - Select the cookies file in settings
-   - Paste Patreon video URL and download
-
-3. **Settings:**
+2. **Settings:**
    - Change download directory
    - Default video quality
    - Concurrent downloads count
@@ -175,6 +172,58 @@ journalctl -f -o cat /usr/bin/gnome-shell | grep -i ulak
 2. Login to Patreon
 3. Export cookies
 4. Select cookies file in Ulak settings
+
+## 🍪 Patreon Video Downloads
+
+Patreon videos require authentication via cookies. Here's how to set it up:
+
+### Quick Setup (Browser Extension Method):
+
+#### Firefox:
+1. Install [cookies.txt extension](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/)
+2. Login to Patreon.com
+3. Click extension icon → "Current Site" → Export
+4. Save as `patreon-cookies.txt`
+
+#### Chrome/Edge:
+1. Install [Get cookies.txt LOCALLY](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+2. Login to Patreon.com
+3. Click extension icon → Export
+4. Save as `patreon-cookies.txt`
+
+### Alternative Method (Command Line):
+```bash
+# Firefox
+yt-dlp --cookies-from-browser firefox --cookies ~/patreon-cookies.txt --skip-download "https://youtube.com"
+
+# Chrome
+yt-dlp --cookies-from-browser chrome --cookies ~/patreon-cookies.txt --skip-download "https://youtube.com"
+```
+
+### Configure Ulak:
+1. Click Ulak icon → Settings
+2. Advanced Settings → Cookies File
+3. Choose your `patreon-cookies.txt` file
+4. Now you can download Patreon videos!
+
+### Test Your Setup:
+```bash
+# Check if cookies file exists
+ls -la ~/patreon-cookies.txt
+
+# Check for Patreon cookies
+grep "patreon" ~/patreon-cookies.txt
+
+# Test download
+yt-dlp --cookies ~/patreon-cookies.txt "PATREON_URL"
+```
+
+### Important Notes:
+- **You must be a patron** of the creator to download their content
+- **Cookies expire** every 1-3 months - re-export when needed
+- **Keep cookies file private** - it contains your login session
+- **One cookies file** works for all creators you support
+- **Test with a free/public post first** to verify setup
 
 ## 🎨 Customization
 

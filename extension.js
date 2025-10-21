@@ -159,11 +159,12 @@ class UlakIndicator extends PanelMenu.Button {
         
         try {
             let [success, stdout, stderr, exitCode] = GLib.spawn_command_line_sync(
-                `${ytDlpPath} --version`
+                `which ${ytDlpPath}`
             );
             
             if (success && exitCode === 0) {
                 this._ytDlpAvailable = true;
+                console.log('Ulak: yt-dlp found at ' + stdout);
             } else {
                 this._ytDlpAvailable = false;
                 this._showError('yt-dlp not found! Please install yt-dlp.');
@@ -242,10 +243,27 @@ class UlakIndicator extends PanelMenu.Button {
             command += ' --merge-output-format mp4';
         }
         
-        // Cookies support for Patreon
+        // Cookies support for Patreon - IMPORTANT
         let cookiesFile = this._settings.get_string('cookies-file');
-        if (cookiesFile && url.includes('patreon.com')) {
-            command += ' --cookies "' + cookiesFile + '"';
+        if (cookiesFile && cookiesFile.length > 0) {
+            // Check if file exists
+            let file = Gio.File.new_for_path(cookiesFile);
+            if (file.query_exists(null)) {
+                command += ' --cookies "' + cookiesFile + '"';
+                console.log('Ulak: Using cookies file: ' + cookiesFile);
+            } else {
+                console.log('Ulak: Cookies file not found: ' + cookiesFile);
+                if (url.includes('patreon.com')) {
+                    this._showError('Cookies file not found! Patreon requires cookies.');
+                }
+            }
+        } else if (url.includes('patreon.com')) {
+            this._showError('Patreon videos require cookies! Please set cookies file in settings.');
+        }
+        
+        // Add verbose flag for debugging Patreon issues
+        if (url.includes('patreon.com')) {
+            command += ' --verbose';
         }
         
         // Add URL at the end

@@ -1,5 +1,5 @@
 {
-  "description": "Ulak, another youtube and patreon video downloader",
+  "description": "Download videos from YouTube and Patreon directly from your GNOME desktop",
   "donations": {
     "github": "https://github.com/faymaz"
   },
