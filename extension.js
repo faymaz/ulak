@@ -296,18 +296,19 @@ class UlakIndicator extends PanelMenu.Button {
         });
         
         // Progress bar background
-        let progressBg = new St.Widget({
+        let progressBg = new St.Bin({
             style: 'background-color: rgba(255,255,255,0.1); height: 20px; border-radius: 10px;',
             x_expand: true,
         });
         
         // Progress bar fill
         let progressFill = new St.Widget({
-            style: 'background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%); height: 20px; border-radius: 10px; width: 0%;',
+            style: 'background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%); height: 20px; border-radius: 10px;',
             x_align: Clutter.ActorAlign.START,
+            y_align: Clutter.ActorAlign.FILL,
         });
         
-        progressBg.add_child(progressFill);
+        progressBg.set_child(progressFill);
         
         // Progress text
         let progressText = new St.Label({
@@ -338,6 +339,7 @@ class UlakIndicator extends PanelMenu.Button {
             url: url,
             titleLabel: titleLabel,
             progressFill: progressFill,
+            progressBg: progressBg,
             progressText: progressText,
             statsLabel: statsLabel,
             startTime: Date.now(),
@@ -405,9 +407,22 @@ class UlakIndicator extends PanelMenu.Button {
         
         if (percentMatch) {
             let percent = parseFloat(percentMatch[1]);
+            
+            // Get the actual width of the background container
+            let bgWidth = 300; // Default fallback
+            if (download.progressBg) {
+                let allocation = download.progressBg.get_allocation_box();
+                if (allocation) {
+                    bgWidth = allocation.x2 - allocation.x1;
+                }
+            }
+            
+            // Calculate pixel width based on percentage
+            let width = Math.max(1, Math.floor(bgWidth * percent / 100));
+            
             download.progressFill.set_style(
                 `background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%); 
-                 height: 20px; border-radius: 10px; width: ${percent}%;`
+                 height: 20px; border-radius: 10px; width: ${width}px;`
             );
             download.progressText.set_text(percent.toFixed(1) + '%');
         }
@@ -461,7 +476,7 @@ class UlakIndicator extends PanelMenu.Button {
         // Update UI
         download.titleLabel.set_text('✅ Completed!');
         download.progressFill.set_style(
-            'background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%); height: 20px; border-radius: 10px; width: 100%;'
+            'background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%); height: 20px; border-radius: 10px; width: 300px;'
         );
         download.progressText.set_text('100%');
         download.statsLabel.set_text('Download complete');
@@ -487,8 +502,16 @@ class UlakIndicator extends PanelMenu.Button {
     
     _removeDownload(downloadId, completed) {
         let download = this._downloads.get(downloadId);
-        if (download && download.item) {
-            download.item.destroy();
+        if (download) {
+            try {
+                // Safely remove the menu item
+                if (download.item && !download.item.is_finalized()) {
+                    this._downloadsSection.box.remove_child(download.item);
+                    download.item.destroy();
+                }
+            } catch (e) {
+                console.log('Ulak: Download item already removed');
+            }
         }
         this._downloads.delete(downloadId);
     }
@@ -648,12 +671,17 @@ class UlakIndicator extends PanelMenu.Button {
     }
     
     _shortenFilename(filename) {
+        if (!filename) return 'Unknown';
+        
         if (filename.length > 35) {
             // Keep extension visible
-            let ext = filename.split('.').pop();
-            let name = filename.substring(0, filename.lastIndexOf('.'));
-            if (name.length > 30) {
-                return name.substring(0, 27) + '...' + ext;
+            let lastDot = filename.lastIndexOf('.');
+            if (lastDot > 0) {
+                let ext = filename.substring(lastDot);
+                let name = filename.substring(0, lastDot);
+                if (name.length > 30) {
+                    return name.substring(0, 27) + '...' + ext;
+                }
             }
         }
         return filename;
