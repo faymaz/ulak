@@ -120,23 +120,6 @@ make package      # Create ZIP package
 make clean        # Clean temporary files
 ```
 
-## 📁 File Structure
-
-```
-ulak@faymaz.github.com/
-├── extension.js                 # Main extension code
-├── prefs.js                     # Settings interface
-├── metadata.json                # Extension metadata
-├── stylesheet.css               # CSS styles
-├── Makefile                     # Installation scripts
-├── README.md                    # Documentation
-├── schemas/
-│   └── org.gnome.shell.extensions.ulak.gschema.xml  # GSettings schema
-└── icons/
-    ├── ulak.png                 # Extension icon
-    └── ulak.jpg                 # Alternative icon
-```
-
 ## 🔧 Troubleshooting
 
 ### yt-dlp not found error:
@@ -273,12 +256,6 @@ Support via [GitHub Sponsors](https://github.com/sponsors/faymaz)
 
 - GitHub: [@faymaz](https://github.com/faymaz)
 - Email: faymaz@github.com
-
-## 🖼️ Icons
-
-The extension uses icons from the `icons/` directory:
-- `ulak.png` - Main extension icon
-- `ulak.jpg` - Alternative icon format
 
 Make sure these icon files exist in the `icons/` directory for the extension to display properly.
 
