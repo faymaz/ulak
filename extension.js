@@ -1,3 +1,4 @@
+// extension.js - Enhanced with download history and better progress tracking
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 import Gio from 'gi://Gio';
@@ -227,11 +228,23 @@ class UlakIndicator extends PanelMenu.Button {
         command += ' --progress';
         command += ' --output "' + outputPath + '"';
         
+        // Modern user-agent
+        command += ' --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"';
+        
+        // YouTube 403 fix - use different extractors
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            // Try using android client which often bypasses restrictions
+            command += ' --extractor-args "youtube:player_client=android,web"';
+            // Add referer
+            command += ' --referer "https://www.youtube.com/"';
+        }
+        
         if (this._selectedQuality === 'audio') {
             command += ' -x --audio-format mp3 --audio-quality 0';
         } else {
             let height = this._selectedQuality.replace('p', '');
-            command += ' -f "bestvideo[height<=?' + height + ']+bestaudio/best[height<=?' + height + ']/best"';
+            // Use simpler format selector to avoid 403
+            command += ' -f "bv*[height<=?' + height + ']+ba/b[height<=?' + height + ']/bv*+ba/b"';
             command += ' --merge-output-format mp4';
         }
         
@@ -241,6 +254,11 @@ class UlakIndicator extends PanelMenu.Button {
             if (file.query_exists(null)) {
                 command += ' --cookies "' + cookiesFile + '"';
             }
+        }
+        
+        // For Patreon embedded videos
+        if (url.includes('patreon.com')) {
+            command += ' --extractor-args "youtube:player_client=android"';
         }
         
         command += ' "' + url + '"';
@@ -356,6 +374,12 @@ class UlakIndicator extends PanelMenu.Button {
                 let [line] = source.read_line_finish_utf8(result);
                 
                 if (line !== null) {
+                    // Check for errors
+                    if (line.includes('ERROR:') || line.includes('HTTP Error 403')) {
+                        this._onDownloadError(downloadId, line);
+                        return;
+                    }
+                    
                     this._parseProgressLine(line, downloadId);
                     this._monitorDownloadProgress(stream, downloadId, url);
                 } else {
@@ -427,6 +451,14 @@ class UlakIndicator extends PanelMenu.Button {
             download.titleLabel.set_text(sourceIcon + ' ' + shortName);
         }
         
+        // Also check for embedded YouTube videos in Patreon
+        let youtubeEmbedMatch = line.match(/\[youtube\] ([a-zA-Z0-9_-]+):/);
+        if (youtubeEmbedMatch && download.url.includes('patreon')) {
+            let sourceIcon = '🎬➜📺';
+            download.titleLabel.set_text(sourceIcon + ' Patreon → YouTube (embedded)');
+            download.statsLabel.set_text('Downloading embedded YouTube video...');
+        }
+        
         let alreadyMatch = line.match(/\[download\] (.+) has already been downloaded/);
         if (alreadyMatch) {
             download.filename = GLib.path_get_basename(alreadyMatch[1].trim());
@@ -434,6 +466,56 @@ class UlakIndicator extends PanelMenu.Button {
             let shortName = this._shortenFilename(download.filename);
             download.titleLabel.set_text(sourceIcon + ' ' + shortName);
         }
+    }
+    
+    _onDownloadError(downloadId, errorLine) {
+        let download = this._downloads.get(downloadId);
+        if (!download) return;
+        
+        // Parse error message
+        let errorMsg = 'Download failed';
+        let suggestion = '';
+        
+        if (errorLine.includes('HTTP Error 403')) {
+            errorMsg = '❌ Access Denied (403)';
+            suggestion = 'Try: 1) Update yt-dlp: pip install -U yt-dlp\n2) Use --cookies-from-browser firefox\n3) Try lower quality';
+        } else if (errorLine.includes('HTTP Error 404')) {
+            errorMsg = '❌ Video not found (404)';
+            suggestion = 'Video may be deleted or URL is incorrect';
+        } else if (errorLine.includes('unable to download')) {
+            errorMsg = '❌ Unable to download';
+            suggestion = 'Check internet connection or try again later';
+        } else if (errorLine.includes('Sign in to confirm')) {
+            errorMsg = '❌ Age-restricted video';
+            suggestion = 'Login required - use cookies from browser';
+        } else {
+            // Extract error message
+            let match = errorLine.match(/ERROR:\s*(.+)/);
+            if (match) {
+                errorMsg = '❌ ' + match[1].substring(0, 50);
+            }
+        }
+        
+        // Update UI to show error
+        download.titleLabel.set_text(errorMsg);
+        download.progressFill.set_style(
+            `width: 100px; 
+             height: 22px; 
+             background: linear-gradient(90deg, #F44336 0%, #E53935 100%);
+             border-radius: 12px;
+             box-shadow: 0 2px 8px rgba(244, 67, 54, 0.6);`
+        );
+        download.progressText.set_text('Failed');
+        download.statsLabel.set_text(suggestion || 'Check terminal for details');
+        
+        console.error('Ulak download error: ' + errorLine);
+        this._showError(errorMsg);
+        
+        // Remove after 15 seconds to allow reading
+        GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 15, () => {
+            this._removeDownload(downloadId, false);
+            return GLib.SOURCE_REMOVE;
+        });
     }
     
     _onDownloadComplete(downloadId, url) {
@@ -473,7 +555,7 @@ class UlakIndicator extends PanelMenu.Button {
         
         let filepath = GLib.build_filenamev([this._downloadDir, filename]);
         
-      
+        // Get full container width for 100%
         let fullWidth = 300;
         if (download.progressWrapper) {
             let allocation = download.progressWrapper.get_allocation_box();
