@@ -1,0 +1,7 @@
+# Scripts
+setup-icons.sh
+
+
+# Other unnecessary files
+.DS_Store
+Thumbs.db
