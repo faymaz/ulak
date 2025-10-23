@@ -48,7 +48,7 @@ make enable
 1. **Install yt-dlp:**
 ```bash
 # Using pip
-pip install --user yt-dlp
+pip install --user yt-dlp (pip install -U yt-dlp)
 
 # Or using apt (Ubuntu/Debian)
 sudo apt install yt-dlp
@@ -56,6 +56,8 @@ sudo apt install yt-dlp
 # Or using snap
 sudo snap install yt-dlp
 ```
+### Important Notice
+To ensure proper functionality, you must install the latest version of the software. Package managers like `apt` or `snap` may not provide the most up-to-date version.
 
 2. **Install ffmpeg:**
 ```bash
