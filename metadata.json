@@ -1,7 +1,8 @@
 {
   "description": "Download videos from YouTube and Patreon directly from your GNOME desktop",
   "donations": {
-    "github": "https://github.com/faymaz"
+    "buymeacoffee": "fethiaymazb",
+    "github": "faymaz"
   },
   "gettext-domain": "ulak",
   "icon": "icons/ulak.png",
@@ -11,7 +12,8 @@
     "45",
     "46",
     "47",
-    "48"
+    "48",
+    "49"
   ],
   "url": "https://github.com/faymaz/ulak",
   "uuid": "ulak@faymaz.github.com",
