@@ -2,182 +2,251 @@
 
 # Ulak - GNOME Shell Video Downloader
 
-A GNOME Shell extension that allows you to easily download videos from YouTube and Patreon.
+A GNOME Shell extension for downloading videos from YouTube and Patreon directly from your desktop panel.
 
-## 🎯 Features
+## Features
 
-- ✅ YouTube video download
-- ✅ Patreon video download (with cookies support)
-- ✅ Video quality selection (360p - 4K + audio only)
-- ✅ Customizable download directory
-- ✅ Concurrent multiple downloads
-- ✅ Download progress display
-- ✅ Notification support
-- ✅ Download history
-- ✅ Easy-to-use panel menu
+- Download YouTube videos in various qualities (360p to 4K)
+- Download Patreon videos (with authentication)
+- Audio-only extraction (MP3 format)
+- Real-time download progress tracking
+- Download history with quick file access
+- Multiple quality presets
+- Custom download directory
+- Configurable yt-dlp path
+- Clean, integrated panel interface
 
-## 📋 Requirements
+## Requirements
 
-- GNOME Shell 45, 46, 47, or 48
-- yt-dlp
-- ffmpeg (for video merging)
-- Python 3.8+
+### Essential Dependencies
 
-## 🚀 Installation
+- **GNOME Shell:** 45, 46, 47, 48, or 49
+- **yt-dlp:** Video downloader (see installation below)
+- **ffmpeg:** Video/audio processing
 
-### Automatic Installation (with Makefile)
+### yt-dlp Installation
 
+yt-dlp is the core dependency for video downloads. Choose one of the following methods:
+
+#### Method 1: pip (Recommended)
 ```bash
-# Clone the repository
+pip install -U yt-dlp
+```
+
+**Why pip is recommended:**
+- Always provides the latest version
+- Essential for avoiding HTTP 403 errors
+- Updates weekly with platform fixes
+- No root/sudo required for user installation
+
+**Current version:** yt-dlp 2025.12.08 (updates frequently)
+
+#### Method 2: System Package Manager
+```bash
+# Debian/Ubuntu
+sudo apt install yt-dlp
+
+# Fedora
+sudo dnf install yt-dlp
+```
+
+**Note:** System packages may lag behind pip versions. If you encounter download errors (especially 403 Forbidden), update via pip.
+
+#### Method 3: Portable Binary
+```bash
+sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp
+sudo chmod a+rx /usr/local/bin/yt-dlp
+```
+
+### ffmpeg Installation
+```bash
+sudo apt install ffmpeg  # Debian/Ubuntu
+sudo dnf install ffmpeg  # Fedora
+```
+
+## Installation
+
+### From GNOME Extensions Website (Recommended)
+
+1. Visit [extensions.gnome.org](https://extensions.gnome.org/)
+2. Search for "Ulak"
+3. Click the install button
+4. Install yt-dlp and ffmpeg (see Requirements section above)
+
+### Manual Installation from Source
+
+1. **Install dependencies:**
+```bash
+# Install yt-dlp (recommended method)
+pip install -U yt-dlp
+
+# Install ffmpeg
+sudo apt install ffmpeg  # Debian/Ubuntu
+```
+
+2. **Clone and install extension:**
+```bash
 git clone https://github.com/faymaz/ulak.git
 cd ulak
 
-# Check dependencies
-make check-deps
-
-# Install and enable the extension
-make install
-make enable
-
-# Restart GNOME Shell
-# Press Alt+F2, type 'r' and press Enter
-```
-
-### Manual Installation
-
-1. **Install yt-dlp:**
-```bash
-# Using pip
-pip install --user yt-dlp (pip install -U yt-dlp)
-
-# Or using apt (Ubuntu/Debian)
-sudo apt install yt-dlp
-
-# Or using snap
-sudo snap install yt-dlp
-```
-### Important Notice
-To ensure proper functionality, you must install the latest version of the software. Package managers like `apt` or `snap` may not provide the most up-to-date version.
-
-2. **Install ffmpeg:**
-```bash
-sudo apt install ffmpeg
-```
-
-3. **Install the extension:**
-```bash
 # Create extension directory
 mkdir -p ~/.local/share/gnome-shell/extensions/ulak@faymaz.github.com
 
-# Copy all files
-cp -r * ~/.local/share/gnome-shell/extensions/ulak@faymaz.github.com/
+# Copy files
+cp -r extension.js prefs.js metadata.json icons schemas \
+  ~/.local/share/gnome-shell/extensions/ulak@faymaz.github.com/
 
-# Compile schemas
+# Compile GSettings schema
 cd ~/.local/share/gnome-shell/extensions/ulak@faymaz.github.com/schemas
 glib-compile-schemas .
+cd ..
 
 # Enable the extension
 gnome-extensions enable ulak@faymaz.github.com
 ```
 
-4. **Restart GNOME Shell:**
-   - Press Alt+F2
-   - Type 'r' and press Enter
-   - Or logout and login again
+3. **Restart GNOME Shell:**
+   - **X11:** Press `Alt+F2`, type `r`, press Enter
+   - **Wayland:** Log out and log back in
 
-## 🎮 Usage
+## Usage
 
-1. **Basic Usage:**
-   - Click on the Ulak icon in the top panel
-   - Paste the video URL
-   - Select video quality
-   - Click "Download"
+### Basic Download Workflow
 
-2. **Settings:**
-   - Change download directory
-   - Default video quality
-   - Concurrent downloads count
-   - Notification settings
-   - yt-dlp path configuration
+1. **Click** the Ulak icon in the top panel
+2. **Paste** a YouTube or Patreon video URL
+3. **Select** desired video quality (360p to 4K, or audio-only)
+4. **Click** Download button
+5. **Monitor** progress in real-time
+6. **Access** downloaded files from history or download folder
 
-## 🛠️ Commands
+### Available Quality Options
 
+- `2160p` - 4K Ultra HD
+- `1440p` - 2K Quad HD
+- `1080p` - Full HD
+- `720p` - HD (recommended for balance)
+- `480p` - Standard Definition
+- `360p` - Low quality (smallest file size)
+- `audio` - Audio only (MP3, highest quality)
+
+### Settings Configuration
+
+Access settings by clicking the gear icon in the menu:
+
+- **Download Directory:** Choose where files are saved
+- **Default Quality:** Set preferred quality for all downloads
+- **Concurrent Downloads:** Maximum simultaneous downloads (1-5)
+- **yt-dlp Path:** Custom path if not in system PATH
+- **Cookies File:** Required for Patreon downloads
+- **Notifications:** Toggle completion notifications
+- **Download History:** Enable/disable history tracking
+
+## Troubleshooting
+
+### "yt-dlp not found" Error
+
+The extension cannot locate yt-dlp on your system.
+
+**Solution 1: Install yt-dlp**
 ```bash
-# Installation
-make install       # Install the extension
-make uninstall     # Uninstall the extension
-
-# Control
-make enable        # Enable the extension
-make disable       # Disable the extension
-make status        # Show status
-
-# Development
-make dev          # Developer mode
-make logs         # Show logs
-make test         # Run tests
-
-# Packaging
-make package      # Create ZIP package
-make clean        # Clean temporary files
+pip install -U yt-dlp
 ```
 
-## 🔧 Troubleshooting
-
-### yt-dlp not found error:
+**Solution 2: Add to PATH**
 ```bash
-# Update yt-dlp
-pip install --upgrade yt-dlp
-
-# Add to PATH
+# Add pip bin directory to PATH
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
+
+# Verify installation
+which yt-dlp
+yt-dlp --version
 ```
 
-### Video merge error:
-```bash
-# Check ffmpeg installation
-ffmpeg -version
+**Solution 3: Specify Custom Path**
+1. Find yt-dlp location: `which yt-dlp`
+2. Open Ulak settings
+3. Enter full path in "yt-dlp Path" field
 
-# If not installed
-sudo apt install ffmpeg
+### HTTP 403 Forbidden Errors
+
+YouTube frequently changes their API, causing download failures.
+
+**Solution:**
+```bash
+# Update yt-dlp to latest version
+pip install -U yt-dlp
+
+# Verify version (should be recent)
+yt-dlp --version
 ```
 
-### Extension not appearing:
+**Note:** yt-dlp is updated weekly to fix these issues. Always keep it current.
+
+### Extension Not Appearing in Panel
+
+**Check extension status:**
 ```bash
-# Check status
 gnome-extensions info ulak@faymaz.github.com
+```
 
-# Check logs
+**View error logs:**
+```bash
 journalctl -f -o cat /usr/bin/gnome-shell | grep -i ulak
 ```
 
-### Patreon videos not downloading:
-1. Install "cookies.txt" browser extension
-2. Login to Patreon
-3. Export cookies
-4. Select cookies file in Ulak settings
-
-## 🍪 Patreon Video Downloads
-
-Patreon videos require authentication via cookies. Here's how to set it up:
-
-### Quick Setup (Browser Extension Method):
-
-#### Firefox:
-1. Install [cookies.txt extension](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/)
-2. Login to Patreon.com
-3. Click extension icon → "Current Site" → Export
-4. Save as `patreon-cookies.txt`
-
-#### Chrome/Edge:
-1. Install [Get cookies.txt LOCALLY](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
-2. Login to Patreon.com
-3. Click extension icon → Export
-4. Save as `patreon-cookies.txt`
-
-### Alternative Method (Command Line):
+**Reinstall schema:**
 ```bash
+cd ~/.local/share/gnome-shell/extensions/ulak@faymaz.github.com/schemas
+glib-compile-schemas .
+gnome-extensions disable ulak@faymaz.github.com
+gnome-extensions enable ulak@faymaz.github.com
+```
+
+### Video/Audio Merge Errors
+
+**Check ffmpeg:**
+```bash
+ffmpeg -version
+```
+
+**Install if missing:**
+```bash
+sudo apt install ffmpeg
+```
+
+## Patreon Video Downloads
+
+Patreon videos require authentication. You must export browser cookies to download content from creators you support.
+
+### Prerequisites
+
+- Active Patreon account
+- Subscription/patronage to the creator whose content you want to download
+- Browser extension for exporting cookies
+
+### Step 1: Export Browser Cookies
+
+#### Firefox Users
+
+1. Install [cookies.txt extension](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/)
+2. Navigate to patreon.com and log in
+3. Click the extension icon
+4. Select "Current Site"
+5. Click "Export" and save as `patreon-cookies.txt`
+
+#### Chrome/Chromium/Edge Users
+
+1. Install [Get cookies.txt LOCALLY](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+2. Navigate to patreon.com and log in
+3. Click the extension icon
+4. Click "Export" and save as `patreon-cookies.txt`
+
+#### Command Line Alternative
+
+```bash
+# Extract cookies directly from browser database
 # Firefox
 yt-dlp --cookies-from-browser firefox --cookies ~/patreon-cookies.txt --skip-download "https://youtube.com"
 
@@ -185,82 +254,162 @@ yt-dlp --cookies-from-browser firefox --cookies ~/patreon-cookies.txt --skip-dow
 yt-dlp --cookies-from-browser chrome --cookies ~/patreon-cookies.txt --skip-download "https://youtube.com"
 ```
 
-### Configure Ulak:
-1. Click Ulak icon → Settings
-2. Advanced Settings → Cookies File
-3. Choose your `patreon-cookies.txt` file
-4. Now you can download Patreon videos!
+### Step 2: Configure Ulak
 
-### Test Your Setup:
+1. Click the Ulak icon in the panel
+2. Select **Settings** (gear icon)
+3. Scroll to **Advanced Settings**
+4. Click **Cookies File** → **Choose File**
+5. Select your `patreon-cookies.txt` file
+6. Click **Select**
+
+### Step 3: Download Patreon Videos
+
+1. Copy the Patreon post URL containing the video
+2. Paste into Ulak's URL field
+3. Select desired quality
+4. Click Download
+
+### Verification
+
+Test your setup before attempting downloads:
+
 ```bash
-# Check if cookies file exists
+# Verify cookies file exists
 ls -la ~/patreon-cookies.txt
 
-# Check for Patreon cookies
-grep "patreon" ~/patreon-cookies.txt
+# Verify Patreon cookies are present
+grep "patreon.com" ~/patreon-cookies.txt
 
-# Test download
-yt-dlp --cookies ~/patreon-cookies.txt "PATREON_URL"
+# Test download from command line
+yt-dlp --cookies ~/patreon-cookies.txt "YOUR_PATREON_POST_URL"
 ```
 
-### Important Notes:
-- **You must be a patron** of the creator to download their content
-- **Cookies expire** every 1-3 months - re-export when needed
-- **Keep cookies file private** - it contains your login session
-- **One cookies file** works for all creators you support
-- **Test with a free/public post first** to verify setup
+### Important Security Notes
 
-## 🎨 Customization
+- Cookies contain your **login session** - treat them like passwords
+- Store cookies file in a **secure location** (e.g., `~/.config/`)
+- **Never share** your cookies file
+- Cookies **expire** after 1-3 months - re-export when needed
+- One cookies file works for **all creators** you support
 
-### Video Quality Formats:
-- `2160p` - 4K Ultra HD
-- `1440p` - 2K Quad HD
-- `1080p` - Full HD (default)
-- `720p` - HD
-- `480p` - SD
-- `360p` - Low quality
-- `audio` - Audio only (MP3)
+### Troubleshooting Patreon Downloads
 
-### Filename Format:
-Configurable in settings. Default:
+**"Login required" or "Access denied" errors:**
+- Re-export fresh cookies from your browser
+- Verify you're logged into Patreon in the browser
+- Confirm you have active patronage to the creator
+
+**Video not downloading:**
+- Some Patreon videos are YouTube embeds (these don't require cookies)
+- Verify the post actually contains a downloadable video
+- Check Ulak logs for detailed error messages
+
+## Advanced Configuration
+
+### Custom yt-dlp Path
+
+If yt-dlp is installed in a non-standard location:
+
+1. Find the installation path: `which yt-dlp`
+2. Open Ulak Settings → Advanced Settings
+3. Enter the full path in "yt-dlp Path" field
+4. Save and test
+
+### Download Directory
+
+Change where videos are saved:
+
+1. Open Ulak Settings
+2. Click "Change Directory"
+3. Select desired folder
+4. New downloads will use this location
+
+### Output Filename Format
+
+The extension uses yt-dlp's default output template:
 ```
-%(title)s-%(resolution)s.%(ext)s
+%(title)s.%(ext)s
 ```
 
-Other options:
-- `%(title)s.%(ext)s` - Title only
-- `%(upload_date)s-%(title)s.%(ext)s` - With date
-- `%(uploader)s/%(title)s.%(ext)s` - In channel folder
+To customize, modify `extension.js:221` before installation.
 
-## 📝 License
+## Development
 
-MIT License
+### Building from Source
 
-## 🤝 Contributing
+```bash
+git clone https://github.com/faymaz/ulak.git
+cd ulak
+
+# Install to local extensions directory
+mkdir -p ~/.local/share/gnome-shell/extensions/ulak@faymaz.github.com
+cp -r extension.js prefs.js metadata.json icons schemas \
+  ~/.local/share/gnome-shell/extensions/ulak@faymaz.github.com/
+
+# Compile schemas
+cd ~/.local/share/gnome-shell/extensions/ulak@faymaz.github.com/schemas
+glib-compile-schemas .
+
+# Enable and test
+gnome-extensions enable ulak@faymaz.github.com
+```
+
+### Viewing Logs
+
+Monitor extension activity:
+```bash
+journalctl -f -o cat /usr/bin/gnome-shell | grep -i ulak
+```
+
+### Contributing
+
+Contributions are welcome! Please follow these steps:
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes
+4. Test thoroughly on GNOME Shell 45+
+5. Commit: `git commit -m 'Add amazing feature'`
+6. Push: `git push origin feature/amazing-feature`
+7. Open a Pull Request
 
-## 🐛 Bug Reports
+Please ensure your code:
+- Follows existing code style
+- Includes error handling
+- Cleans up resources in `disable()`
+- Works on GNOME Shell 45-49
 
-For bugs and suggestions, please use the [GitHub Issues](https://github.com/faymaz/ulak/issues) page.
+## License
 
-## 💝 Support
+MIT License - see LICENSE file for details
 
-If you like this project, please give it a ⭐!
+## Legal Notice
 
-Support via [GitHub Sponsors](https://github.com/sponsors/faymaz)
+This extension is a graphical interface for yt-dlp. Users are responsible for:
+- Complying with platform Terms of Service
+- Respecting copyright and intellectual property rights
+- Only downloading content they have rights to access
+- Following applicable laws in their jurisdiction
 
-## 📧 Contact
+The extension author assumes no liability for user actions.
 
-- GitHub: [@faymaz](https://github.com/faymaz)
-- Email: faymaz@github.com
+## Support & Community
 
-Make sure these icon files exist in the `icons/` directory for the extension to display properly.
+- **Bug Reports:** [GitHub Issues](https://github.com/faymaz/ulak/issues)
+- **Feature Requests:** [GitHub Discussions](https://github.com/faymaz/ulak/discussions)
+- **Source Code:** [GitHub Repository](https://github.com/faymaz/ulak)
+
+If this extension is useful to you, please give it a star on GitHub!
+
+## Acknowledgments
+
+- Built with [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+- Powered by [GNOME Shell Extension APIs](https://gjs.guide/)
+- Icons from GNOME icon theme
 
 ---
 
-**Note:** This extension is for educational purposes. Compliance with copyright laws is the user's responsibility.
+**Version:** 1.0
+**Author:** [@faymaz](https://github.com/faymaz)
+**GNOME Shell:** 45, 46, 47, 48, 49
