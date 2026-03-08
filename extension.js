@@ -210,9 +210,10 @@ class UlakIndicator extends PanelMenu.Button {
     _isValidUrl(url) {
         const patterns = [
             /^https?:\/\/(www\.)?(youtube\.com|youtu\.be|patreon\.com)\/.+/i,
-            /^https?:\/\/.*\.patreon\.com\/.+/i
+            /^https?:\/\/.*\.patreon\.com\/.+/i,
+            /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/.+\/status\/.+/i,
         ];
-        
+
         return patterns.some(pattern => pattern.test(url));
     }
     
@@ -238,7 +239,12 @@ class UlakIndicator extends PanelMenu.Button {
             // Add referer
             command += ' --referer "https://www.youtube.com/"';
         }
-        
+
+        // X.com / Twitter specific options
+        if (url.includes('twitter.com') || url.includes('x.com')) {
+            command += ' --referer "https://x.com/"';
+        }
+
         if (this._selectedQuality === 'audio') {
             command += ' -x --audio-format mp3 --audio-quality 0';
         } else {
@@ -247,7 +253,7 @@ class UlakIndicator extends PanelMenu.Button {
             command += ' -f "bv*[height<=?' + height + ']+ba/b[height<=?' + height + ']/bv*+ba/b"';
             command += ' --merge-output-format mp4';
         }
-        
+
         let cookiesFile = this._settings.get_string('cookies-file');
         if (cookiesFile && cookiesFile.length > 0) {
             let file = Gio.File.new_for_path(cookiesFile);
@@ -255,7 +261,7 @@ class UlakIndicator extends PanelMenu.Button {
                 command += ' --cookies "' + cookiesFile + '"';
             }
         }
-        
+
         // For Patreon embedded videos
         if (url.includes('patreon.com')) {
             command += ' --extractor-args "youtube:player_client=android"';
@@ -279,8 +285,10 @@ class UlakIndicator extends PanelMenu.Button {
             style: 'padding: 8px; spacing: 6px;',
         });
         
-        let sourceIcon = url.includes('youtube') ? '📺' : '🎬';
-        let sourceName = url.includes('youtube') ? 'YouTube' : 'Patreon';
+        let sourceIcon = url.includes('youtube') ? '📺' :
+            (url.includes('twitter.com') || url.includes('x.com')) ? '🐦' : '🎬';
+        let sourceName = url.includes('youtube') ? 'YouTube' :
+            (url.includes('twitter.com') || url.includes('x.com')) ? 'X (Twitter)' : 'Patreon';
         
         let titleLabel = new St.Label({
             text: sourceIcon + ' Downloading from ' + sourceName + '...',
@@ -437,16 +445,16 @@ class UlakIndicator extends PanelMenu.Button {
         if (destMatch) {
             let fullPath = destMatch[1].trim();
             download.filename = GLib.path_get_basename(fullPath);
-            let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
+            let sourceIcon = this._getSourceIcon(download.source);
             let shortName = this._shortenFilename(download.filename);
             download.titleLabel.set_text(sourceIcon + ' ' + shortName);
         }
-        
+
         let mergeMatch = line.match(/\[Merger\] Merging formats into "(.+)"/);
         if (mergeMatch) {
             let fullPath = mergeMatch[1].trim();
             download.filename = GLib.path_get_basename(fullPath);
-            let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
+            let sourceIcon = this._getSourceIcon(download.source);
             let shortName = this._shortenFilename(download.filename);
             download.titleLabel.set_text(sourceIcon + ' ' + shortName);
         }
@@ -462,7 +470,7 @@ class UlakIndicator extends PanelMenu.Button {
         let alreadyMatch = line.match(/\[download\] (.+) has already been downloaded/);
         if (alreadyMatch) {
             download.filename = GLib.path_get_basename(alreadyMatch[1].trim());
-            let sourceIcon = download.source === 'YouTube' ? '📺' : '🎬';
+            let sourceIcon = this._getSourceIcon(download.source);
             let shortName = this._shortenFilename(download.filename);
             download.titleLabel.set_text(sourceIcon + ' ' + shortName);
         }
@@ -670,7 +678,7 @@ class UlakIndicator extends PanelMenu.Button {
                 style: 'spacing: 4px;',
             });
             
-            let sourceIcon = historyItem.source === 'YouTube' ? '📺' : '🎬';
+            let sourceIcon = this._getSourceIcon(historyItem.source);
             let titleLabel = new St.Label({
                 text: sourceIcon + ' ' + this._extractTitle(historyItem.filename),
                 style: 'font-size: 12px; font-weight: 500;',
@@ -761,6 +769,12 @@ class UlakIndicator extends PanelMenu.Button {
         return url;
     }
     
+    _getSourceIcon(source) {
+        if (source === 'YouTube') return '📺';
+        if (source === 'X (Twitter)') return '🐦';
+        return '🎬';
+    }
+
     _shortenFilename(filename) {
         if (!filename) return 'Unknown';
         
