@@ -212,6 +212,7 @@ class UlakIndicator extends PanelMenu.Button {
             /^https?:\/\/(www\.)?(youtube\.com|youtu\.be|patreon\.com)\/.+/i,
             /^https?:\/\/.*\.patreon\.com\/.+/i,
             /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/.+\/status\/.+/i,
+            /^https?:\/\/(www\.)?tiktok\.com\/.+/i,
         ];
 
         return patterns.some(pattern => pattern.test(url));
@@ -243,6 +244,13 @@ class UlakIndicator extends PanelMenu.Button {
         // X.com / Twitter specific options
         if (url.includes('twitter.com') || url.includes('x.com')) {
             command += ' --referer "https://x.com/"';
+        }
+
+        // TikTok specific options
+        if (url.includes('tiktok.com')) {
+            command += ' --referer "https://www.tiktok.com/"';
+            // Remove watermark when possible
+            command += ' --extractor-args "tiktok:api_hostname=api22-normal-c-useast2a.tiktokv.com"';
         }
 
         if (this._selectedQuality === 'audio') {
@@ -286,9 +294,11 @@ class UlakIndicator extends PanelMenu.Button {
         });
         
         let sourceIcon = url.includes('youtube') ? '📺' :
-            (url.includes('twitter.com') || url.includes('x.com')) ? '🐦' : '🎬';
+            (url.includes('twitter.com') || url.includes('x.com')) ? '🐦' :
+            url.includes('tiktok.com') ? '🎵' : '🎬';
         let sourceName = url.includes('youtube') ? 'YouTube' :
-            (url.includes('twitter.com') || url.includes('x.com')) ? 'X (Twitter)' : 'Patreon';
+            (url.includes('twitter.com') || url.includes('x.com')) ? 'X (Twitter)' :
+            url.includes('tiktok.com') ? 'TikTok' : 'Patreon';
         
         let titleLabel = new St.Label({
             text: sourceIcon + ' Downloading from ' + sourceName + '...',
@@ -772,6 +782,7 @@ class UlakIndicator extends PanelMenu.Button {
     _getSourceIcon(source) {
         if (source === 'YouTube') return '📺';
         if (source === 'X (Twitter)') return '🐦';
+        if (source === 'TikTok') return '🎵';
         return '🎬';
     }
 
