@@ -2,12 +2,15 @@
 
 # Ulak - GNOME Shell Video Downloader
 
-A GNOME Shell extension for downloading videos from YouTube and Patreon directly from your desktop panel.
+A GNOME Shell extension for downloading videos from YouTube, X (Twitter), TikTok, Instagram, and Patreon directly from your desktop panel.
 
 ## Features
 
-- Download YouTube videos in various qualities (360p to 4K)
-- Download Patreon videos (with authentication)
+- 📺 Download YouTube videos in various qualities (360p to 4K)
+- 🐦 Download X (Twitter) videos
+- 🎵 Download TikTok videos (watermark-free when available)
+- 📷 Download Instagram Reels, posts, and IGTV videos
+- 🎬 Download Patreon videos (with authentication)
 - Audio-only extraction (MP3 format)
 - Real-time download progress tracking
 - Download history with quick file access
@@ -114,7 +117,7 @@ gnome-extensions enable ulak@faymaz.github.com
 ### Basic Download Workflow
 
 1. **Click** the Ulak icon in the top panel
-2. **Paste** a YouTube or Patreon video URL
+2. **Paste** a YouTube, X (Twitter), TikTok, Instagram, or Patreon video URL
 3. **Select** desired video quality (360p to 4K, or audio-only)
 4. **Click** Download button
 5. **Monitor** progress in real-time
@@ -413,3 +416,4 @@ If this extension is useful to you, please give it a star on GitHub!
 **Version:** 1.0
 **Author:** [@faymaz](https://github.com/faymaz)
 **GNOME Shell:** 45, 46, 47, 48, 49
+**Supported Platforms:** YouTube · X (Twitter) · TikTok · Instagram · Patreon

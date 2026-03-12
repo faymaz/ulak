@@ -213,6 +213,7 @@ class UlakIndicator extends PanelMenu.Button {
             /^https?:\/\/.*\.patreon\.com\/.+/i,
             /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/.+\/status\/.+/i,
             /^https?:\/\/(www\.)?tiktok\.com\/.+/i,
+            /^https?:\/\/(www\.)?instagram\.com\/(reel|p|tv)\/.+/i,
         ];
 
         return patterns.some(pattern => pattern.test(url));
@@ -251,6 +252,11 @@ class UlakIndicator extends PanelMenu.Button {
             command += ' --referer "https://www.tiktok.com/"';
             // Remove watermark when possible
             command += ' --extractor-args "tiktok:api_hostname=api22-normal-c-useast2a.tiktokv.com"';
+        }
+
+        // Instagram specific options
+        if (url.includes('instagram.com')) {
+            command += ' --referer "https://www.instagram.com/"';
         }
 
         if (this._selectedQuality === 'audio') {
@@ -295,10 +301,12 @@ class UlakIndicator extends PanelMenu.Button {
         
         let sourceIcon = url.includes('youtube') ? '📺' :
             (url.includes('twitter.com') || url.includes('x.com')) ? '🐦' :
-            url.includes('tiktok.com') ? '🎵' : '🎬';
+            url.includes('tiktok.com') ? '🎵' :
+            url.includes('instagram.com') ? '📷' : '🎬';
         let sourceName = url.includes('youtube') ? 'YouTube' :
             (url.includes('twitter.com') || url.includes('x.com')) ? 'X (Twitter)' :
-            url.includes('tiktok.com') ? 'TikTok' : 'Patreon';
+            url.includes('tiktok.com') ? 'TikTok' :
+            url.includes('instagram.com') ? 'Instagram' : 'Patreon';
         
         let titleLabel = new St.Label({
             text: sourceIcon + ' Downloading from ' + sourceName + '...',
@@ -783,6 +791,7 @@ class UlakIndicator extends PanelMenu.Button {
         if (source === 'YouTube') return '📺';
         if (source === 'X (Twitter)') return '🐦';
         if (source === 'TikTok') return '🎵';
+        if (source === 'Instagram') return '📷';
         return '🎬';
     }
 
